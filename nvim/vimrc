@@ -1,0 +1,341 @@
+" vim: nowrap fdm=marker
+scriptencoding utf-8
+set encoding=utf-8
+set nocompatible
+
+if !has('nvim')
+  unlet! skip_defaults_vim
+  source $VIMRUNTIME/defaults.vim
+endif
+
+let $MYVIMRC="~/.config/nvim/vimrc"
+
+let b:python3_interpreter=expand('$HOME') .  '/.pyenv/versions/vim3/bin/python'
+" let g:python_host_prog = '/full/path/to/neovim2/bin/python'
+if executable(b:python3_interpreter)
+    let g:python3_host_prog = b:python3_interpreter
+endif
+
+call plug#begin('~/.local/share/nvim/plugged')
+  Plug 'machakann/vim-highlightedyank'
+  Plug 'nelstrom/vim-visual-star-search'
+  Plug 'kana/vim-textobj-user'
+  Plug 'godlygeek/tabular'
+  Plug 'tpope/vim-abolish'
+  Plug 'vim-airline/vim-airline'
+  Plug 'tpope/vim-commentary'
+  Plug 'tpope/vim-repeat'
+  Plug 'tpope/vim-surround'
+  Plug 'tpope/vim-unimpaired'
+  " languages
+  Plug 'Vimjas/vim-python-pep8-indent'
+  Plug 'neomake/neomake'
+  Plug 'nvie/vim-flake8'
+  Plug 'lepture/vim-jinja'
+  Plug 'davidhalter/jedi-vim'
+  Plug 'pappasam/coc-jedi', { 'do': 'yarn install --frozen-lockfile && yarn build' }
+  Plug 'mattn/emmet-vim'
+
+  " config
+  Plug 'cespare/vim-toml'
+  Plug 'chrisbra/csv.vim'
+  Plug 'LnL7/vim-nix'
+
+  Plug 'tpope/vim-fugitive'
+  " theemes
+  Plug 'tomasr/molokai'
+  Plug 'altercation/vim-colors-solarized'
+  Plug 'arcticicestudio/nord-vim'
+  if has('nvim')
+    Plug 'Shougo/denite.nvim'
+    " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    " Plug 'zchee/deoplete-jedi'
+  endif
+  " Plug 'hecal3/vim-leader-guide'
+  "
+
+  if has('nvim')
+    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+    Plug 'junegunn/fzf.vim'
+  endif
+
+  " Use release branch (recommend)
+  Plug '~/src/vim-ripgrep'
+  Plug '~/src/vim-spacemacs'
+call plug#end()
+
+
+" prefixes
+let g:mapleader=' '
+let g:maplocalleader=','
+
+" history and undo
+set history=5000
+set noswapfile
+
+set undolevels=5000
+set undoreload=10000
+
+if has('persistent_undo')
+  set undofile
+  set undodir=$HOME/.cache/nvim/undo
+endif
+
+set nojoinspaces
+set wildignore=*.o,*~,*.pyc,.git\*,.hg\*,.svn\*
+let ignore=&wildignore . ',*.pyc,.git,.hg,.svn'
+
+" search
+set hlsearch                    " highlight search
+nmap <silent>  <BS>  :nohlsearch<CR>
+
+set ignorecase                  " ignore case when searching
+set smartcase                   " ignore case if search pattern is all lowercase, case-sensitive otherwise
+if has('nvim')
+  set incsearch
+  set inccommand=nosplit
+endif
+
+if executable('ag')
+    let &grepprg='ag --vimgrep $*'
+    let &grepformat='%f:%l:%c:%m'
+" elif # inside git
+"   set grepprg=git\ --no-pager\ grep\ --no-color\ -n\ $*
+"   set grepformat=%f:%l:%m,%m\ %f\ match%ts,%f
+else
+    let &grepprg='grep -n -R --exclude=' . shellescape(&wildignore) . ' $*'
+endif
+
+
+set diffopt=filler,vertical
+
+set hidden
+set backspace=indent,eol,start  " allow backspacing over everything in insert mode
+set showmatch                   " set show matching parenthesis
+set matchpairs+=<:>,«:»
+set smarttab                    " insert tabs on the start of a line according to shiftwidth, not tabstop
+set pastetoggle=<F2>            " when in insert mode, press <F2> to go to
+nnoremap gp `[v`]
+
+" completion
+set complete-=t
+set wildmenu
+set wildchar=<Tab>      " Expand the command line using tab
+set wildmode=list:longest,full
+set dictionary+=/usr/share/dict/words
+set complete+=k
+set completeopt=menuone,longest,preview
+" autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => General
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+filetype plugin on
+filetype plugin indent on    " required
+
+syntax enable
+syntax on                    " syntax highlighing
+
+"============================================================================
+" Make delete key in Normal mode remove the persistently highlighted matches
+"============================================================================
+
+set autoindent                  " always set autoindenting on
+set copyindent                  " copy the previous indentation on autoindenting
+" set number relativenumber
+
+set smarttab                    " insert tabs on the start of a line according to shiftwidth, not tabstop
+
+set pastetoggle=<F2>            " when in insert mode, press <F2> to go to
+                                " paste mode, where you can paste mass data
+                                " that won't be autoindented
+if has('mouse')
+  set mouse=nv                  " enable using the mouse if terminal emulator supports it (xterm does)
+  if !has('nvim')
+    set ttymouse=xterm2
+  endif
+endif
+
+set fileformats="unix,dos,mac"
+set formatoptions+=1            " When wrapping paragraphs, don't end lines
+                                " with 1-letter words (looks stupid)
+
+set nrformats=                  " make <C-a> and <C-x> play well with
+                                " " zero-padded numbers (i.e. don't consider
+                                " " them octal or hex)
+set nowrap
+
+"============================================================================
+" Folding
+"============================================================================
+set foldenable
+set foldmethod=syntax
+set foldlevel=99
+
+set foldexpr=strlen(matchstr(getline(v:lnum),'^-*')) " Fold lines for which the specified expression produces a fold-level
+set foldmethod=expr
+
+set foldopen=all
+set foldclose=all
+
+set foldcolumn=6
+set foldcolumn&
+
+set foldlevelstart=99
+
+"============================================================================
+" Show/hide fold structure in the left margin
+"============================================================================
+
+
+"nnoremap <up> <nop>
+"nnoremap <down> <nop>
+"nnoremap <left> <nop>
+"nnoremap <right> <nop>
+
+"inoremap <up> <nop>
+"inoremap <down> <nop>
+"inoremap <left> <nop>
+"inoremap <right> <nop>
+"nnoremap j gj
+"nnoremap k gk
+
+" inoremap <F1> <ESC>
+" nnoremap <F1> <ESC>
+" vnoremap <F1> <ESC>
+
+" nnoremap <leader>S ?{<CR>jV/^\s*\}?$<CR>k:sort<CR>:noh<CR>
+" nnoremap <leader>v V`]
+
+
+vmap <expr> > funcs#ShiftAndKeepVisualSelection(">", "Vv")
+vmap <expr> < funcs#ShiftAndKeepVisualSelection("<", "Vv")
+
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" VIM user interface
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" set t_Co=256
+
+set scrolloff=3         "Have 3 lines of offset (or buffer) when scrolling
+
+set ruler               " show a ruler
+set showcmd             " show partial commands
+set showmatch           " show matching braces
+set hidden
+
+set matchpairs+=<:>,«:»
+set splitbelow
+set splitright
+
+" Ignore compiled files
+set lazyredraw
+set linebreak
+if (&termencoding ==# 'utf-8' || &encoding ==# 'utf-8') && version >= 700
+  let &listchars = "tab:\u21e5\u00b7,trail:\u2423,extends:\u21c9,precedes:\u21c7,nbsp:\u26ad"
+  " let &fillchars = "vert:\u259a,fold:\u00b7"
+else
+  set listchars=tab:>\ ,trail:-,extends:>,precedes:<
+  " set listchars=tab:▸\ ,trail:·,extends:#,nbsp:·
+endif
+if exists('+macmeta')
+  set macmeta
+endif
+
+augroup WinActions
+  autocmd!
+  au VimResized * windo wincmd =
+  au WinLeave * set nocursorline nocursorcolumn
+  au WinEnter * set cursorline cursorcolumn
+augroup END
+
+highlight CursorLine    term=bold  cterm=inverse
+set colorcolumn=81
+highlight CursorColumn  term=bold  ctermfg=cyan  ctermbg=black
+highlight ColorColumn ctermbg=magenta
+call matchadd('ColorColumn', '\%81v', 100)
+
+"============================================================================
+" Use arrow keys to navigate after a :vimgrep or :helpgrep
+"============================================================================
+nmap <silent> <a-right>           :cnext<CR>
+nmap <silent> <a-right><a-right>  :cnfile<CR><C-G>
+nmap <silent> <a-left>            :cprev<CR>
+nmap <silent> <a-left><a-left>    :cpfile<CR><C-G>
+
+let g:deoplete#enable_at_startup = 1
+augroup quickfix
+  autocmd!
+  autocmd QuickFixCmdPost [^l]* cwindow
+  autocmd QuickFixCmdPost l* lwindow
+augroup END
+
+set laststatus=2
+if has("statusline")
+    set statusline=\ %{funcs#HasPaste()}%F%m%r%h\ %w\ \ CWD:\ %r%{getcwd()}%h\ \ \ Line:\ %l
+endif
+
+nnoremap <F12> :e ++enc=utf-8<CR>
+
+nnoremap <leader>* :lvim /<c-r>=expand("<cword>")<cr>/ %<cr>:lopen<cr>
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+
+colorscheme nord
+" Denite
+" nnoremap <space>bb :Denite buffer file/old<cr>
+nnoremap <space>bb :call funcs#BuffersAndOldFiles()<cr>
+nnoremap <space>rl :copen<cr>
+" nnoremap <space>pf :Denite file/rec<cr>
+" nnoremap <space>pf :call setqflist([], ' ', {'nr': '$', 'lines': systemlist('git ls-files')})<cr>:call copen<cr>
+nnoremap <space>pf :call funcs#Files('git ls-files')<cr>
+nnoremap <space>/ :Ag
+nnoremap <c-x><c-f> :Explore<cr>
+nnoremap <c-x><c-s> :w<cr>
+nnoremap <c-x>0 :q<cr>
+nnoremap <c-x>1 :only<cr>
+
+" Clipboard - copy/paste
+noremap <silent> <Leader>y y:<C-U>call funcs#Yank(@0)<CR>
+autocmd TextYankPost * call funcs#Yank(shellescape(join(v:event.regcontents, "\<CR>")))
+" autocmd TextYankPost * call funcs#CopyYank()
+
+augroup MatchWord
+  autocmd!
+  autocmd! CursorHold,CursorHoldI * call funcs#HighlightWordUnderCursor()
+augroup END
+
+" jedi
+" " disable autocompletion, cause we use deoplete for completion
+let g:jedi#completions_enabled = 0
+" let g:jedi#force_py_version = 3
+let g:jedi#goto_command = ",gg"
+let g:jedi#goto_assignments_command = ",ga"
+let g:jedi#goto_definitions_command = ",gd"
+let g:jedi#documentation_command = "K"
+let g:jedi#usages_command = ",gu"
+let g:jedi#completions_command = "<C-/>"
+let g:jedi#rename_command = ",r"
+
+
+command! -nargs=+ -complete=file_in_path -bar Files call funcs#Files(<f-args>)
+command! -nargs=+ -complete=file_in_path -bar Ag  cgetexpr funcs#Ag(<f-args>)
+command! -nargs=+ -complete=file_in_path -bar Lag lgetexpr funcs#Ag(<f-args>)
+
+" (col('.')==col('$')?'J':'D')
+" nnoremap <expr> <space>/ :Ag --vimgrep <c-r>=v:hlsearch==1?funcs#SMRemoveBoundaries(@/): <cr>
+nnoremap <space>/ :Ag --vimgrep <c-r>=funcs#SearchProject()<cr>
+
+
+nnoremap <space>df :call funcs#Files('find '. expand('%:h:p') . ' -type f -maxdepth 1 -exec readlink -e \\{} \\;')<cr>
+
+"TODo
+"<spc>pf should check for quiclist named ``git ls-files`` and use it
+"<spc>pf should respect buffer ``git -C %:h``
+
+" let g:usermet_mode='n'    "only able normal mode functions._
+let g:usermet_lder_key='<c-e>'

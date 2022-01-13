@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# https://stackoverflow.com/questions/38086185/how-to-check-if-a-program-is-run-in-bash-on-ubuntu-on-windows-and-not-just-plain
+function is-wsl() {
+	if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+return 2> /dev/null
+
+is-wsl "$@"

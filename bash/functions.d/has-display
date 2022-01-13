@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Returns true if terminal has a display, e.g. X session.
+# https://unix.stackexchange.com/questions/72131/detecting-x-session-in-a-bash-script-bashrc-etc
+function has-display() {
+  [[ -n "$DISPLAY" ]]
+}
+
+return 2> /dev/null
+
+has-display "$@"

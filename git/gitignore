@@ -1,0 +1,12 @@
+.netrwhist
+*.pyc
+*.swp
+.mutt/mailboxes
+.mutt/tmp/
+.vim/bundle
+
+.mutt/cache/
+.mutt/temp/
+.vim/session/
+.vim/sessions/
+.vim/sessions/last.vim

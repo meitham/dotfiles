@@ -1,0 +1,10 @@
+#!/bin/bash
+
+function ls-uniq-ext() {
+	find . -type f | awk -F. '!a[$NF]++{print $NF}'
+	# find . -type f | sed -e 's/.*\.//' | sed -e 's/.*\///' | sort | uniq -c | sort -rn
+}
+
+return 2> /dev/null
+
+ls-uniq-ext "$@"

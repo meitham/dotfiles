@@ -1,0 +1,145 @@
+alias et='emacsclient -t'
+alias ec='emacsclient -c'
+alias e='emacsclient -t'
+
+alias realias='source ~/.config/bash/aliases'
+
+alias cleanpyc='find . -type f -name "*.py[co]" -delete -or -type d -name "__pycache__" -delete'
+
+alias vi='vi -u NORC'
+if command -v nvim 1>/dev/null 2>&1; then
+  # alias vim='nvim'
+  alias tvim='nvim -c ":set ft=tabular"'
+fi
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+alias k=kubectl
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  alias ls='ls --color=auto'
+  #alias dir='dir --color=auto'
+  #alias vdir='vdir --color=auto'
+
+  alias grep='grep --color=auto'
+  alias fgrep='fgrep --color=auto'
+  alias egrep='egrep --color=auto'
+fi
+
+
+
+difftree () {
+  left=${1:-${PWD}}
+  right=${2:-${PWD}}
+  for x in $(ls -1 $left); do vim --noplugin -d {$left,$right}/${x}; done
+}
+
+http () {
+  PORT=${1:-8000}
+  echo "SimpleHTTPServer on 127.0.0.1:${PORT} ..."
+  python -c "import BaseHTTPServer as bhs, SimpleHTTPServer as shs; bhs.HTTPServer(('127.0.0.1', ${PORT}), shs.SimpleHTTPRequestHandler).serve_forever()"
+}
+
+
+http0 () {
+  PORT=${1:-8000}
+  echo "SimpleHTTPServer on `hostname`:${PORT} ..."
+  python -c "import BaseHTTPServer as bhs, SimpleHTTPServer as shs; bhs.HTTPServer(('0.0.0.0', ${PORT}), shs.SimpleHTTPRequestHandler).serve_forever()"
+}
+
+uniqdates () {
+  DIR=${1:-${PWD}}
+  ls -1 ${DIR} | egrep -o '[-][[:digit:]]{8}[-]' | egrep -o '[[:digit:]]{8}' | sort | uniq
+}
+
+du_breakdown () {
+  DIR=$1 || ${PWD}
+  find ${DIR} -type f -printf '%u %k\n' | awk '{
+  arr[$1] += $2
+    } END {
+    for ( i in arr ) {
+      print i": "arr[i]"K"
+    }
+  }'
+}
+
+lddarch () {
+  objdump -f $1 | grep ^architecture
+}
+
+cpucount () {
+  python -c "import multiprocessing as m; print m.cpu_count()"
+}
+
+tmux_up () {
+  killall -s SIGUSR1 tmux
+}
+
+running_in_docker() {
+  (awk -F/ '$2 == "docker"' /proc/self/cgroup | read non_empty_input)
+}
+
+pyenv_on() {
+  if command -v pyenv 1>/dev/null 2>&1; then
+    eval "$(pyenv init -)"
+  fi
+}
+
+scan-print() {
+	convert -density 150 $1 -colorspace gray -linear-stretch 3.5%x10% -blur 0x0.5 -attenuate 0.25 +noise Gaussian -rotate 0.5 /tmp/temp.pdf
+  gs -dSAFER -dBATCH -dNOPAUSE -dNOCACHE -sDEVICE=pdfwrite -sColorConversionStrategy=LeaveColorUnchanged dAutoFilterColorImages=true -dAutoFilterGrayImages=true -dDownsampleMonoImages=true -dDownsampleGrayImages=true -dDownsampleColorImages=true -sOutputFile=$2 /tmp/temp.pdf
+}
+
+trunc-docker-log() {
+	truncate -s 0 $(docker inspect --format='{{.LogPath}}' $1)
+}
+
+tmux_bar() {
+  # adjust tmux bar location
+  if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+    command -v tmux >/dev/null 2>&1 && tmux has-session  && tmux set-option -g status-position bottom;
+  else
+    command -v tmux >/dev/null 2>&1 && tmux has-session  && tmux set-option -g status-position top;
+  fi
+}
+
+dkr_cp() {
+  docker save $2 | bzip2 | ssh $1 'bunzip2 | docker load'
+}
+
+workon() {
+	source ~/.pyenv/versions/$1/bin/activate
+}
+
+lsvenvs() {
+	options=${@:--1}
+	ls $options ~/.pyenv/versions/
+}
+
+docker_context() {
+  host=${1:-localhost}
+  if [[ $host = docker ]]; then
+    export DOCKER_HOST=tcp://10.0.0.90:2376
+    export DOCKER_CERT_PATH=/mnt/config/certs/docker-client
+    export DOCKER_TLS_VERIFY=1
+  elif [[ -n "${host}" ]]; then
+    export DOCKER_HOST=ssh://$host
+    unset DOCKER_CERT_PATH
+    unset DOCKER_TLS_VERIFY
+  else
+    unset DOCKER_HOST
+    unset DOCKER_CERT_PATH
+    unset DOCKER_TLS_VERIFY
+  fi
+}
+# vim: set ft=sh:

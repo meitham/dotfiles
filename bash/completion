@@ -1,0 +1,7 @@
+[ -x "$(command -v beet)" ] && eval "$(beet completion)"
+
+if [[ $(type -t compopt) = "builtin" ]]; then
+    complete -o default -F __start_kubectl kubectl k
+else
+    complete -o default -o nospace -F __start_kubectl kubectl k
+fi

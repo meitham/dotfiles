@@ -1,0 +1,9 @@
+#!/bin/bash
+
+function is-tmux() {
+  [[ -n "$TMUX" ]]
+}
+
+return 2> /dev/null
+
+is-tmux "$@"

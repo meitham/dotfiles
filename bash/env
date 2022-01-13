@@ -1,0 +1,17 @@
+# homebrew
+export PATH=/usr/local/bin:$PATH
+export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+export PATH="$PATH:$HOME/.npm-global/bin"
+export MANPATH="/usr/local/opt/coreutils/libexec/gnuman:$MANPATH"
+[[ `uname` = 'Darwin' ]] && [[ -f $(brew --prefix)/etc/bash_completion ]] && source $(brew --prefix)/etc/bash_completion
+[[ `uname` = 'Darwin' ]] && test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
+
+# nix
+[ -f ~/.nix-profile/etc/profile.d/nix.sh ] && . ~/.nix-profile/etc/profile.d/nix.sh
+
+export PATH=~/.local/bin:$PATH
+export PATH=~/.config/bin:$PATH
+export PATH=~/.config/bash/functions.d:$PATH
+export PATH=~/bin:$PATH
+
+export LANG=en_GB.UTF-8
